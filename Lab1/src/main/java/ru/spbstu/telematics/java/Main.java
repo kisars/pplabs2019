@@ -19,11 +19,7 @@ public class Main
 						destinationFile.createNewFile();
 					} catch (IOException e) {
 						System.out.println("Wrong path or filename,try again!");
-					}
-					//System.out.println(destinationFile.getAbsolutePath());
-					//System.out.println(destinationFile.exists());
-					break;
-					
+					}					
 				case "rm":
 					 Rm(destinationFile);
 					break;
