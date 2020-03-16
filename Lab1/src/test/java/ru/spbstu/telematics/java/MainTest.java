@@ -8,12 +8,12 @@ public class MainTest
 {
 
    @Test
-   public void Test1() 
+   public void Test1() throws IOException 
    {
 	   boolean testStatus = true;
-	   String fileName = "testFile.txt";
-	   Main.main(new String[] {"touch", fileName});
+	   String fileName = "testFile.txt";	   
 	   File testFile = new File(fileName);
+	   Main.main(new String[] {"touch", fileName});
 	   if(testFile.exists())	   
 		   testFile.delete();	   
 	   else
