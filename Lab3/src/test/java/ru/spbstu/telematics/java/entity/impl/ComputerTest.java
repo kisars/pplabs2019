@@ -12,13 +12,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ComputerTest {
 
     /** period in milliseconds */
-    private static final long FAN_PERIOD = 50L;
-    private static final long HEATER_PERIOD = 50L;
-    private static final long ROOM_PERIOD = 500L;
-    private static final double INC_TEMPERATURE = 0.3;
-    private static final double DEC_TEMPERATURE = 0.3;
-    private static final double OUTSIDE_TEMPERATURE = -5;
-    private static final double DELTA_TEMPERATURE = 0.3;
+    private static final long FAN_PERIOD = 100L;
+    private static final long HEATER_PERIOD = 100L;
+    private static final long ROOM_PERIOD = 1000L;
+    private static final double INC_TEMPERATURE = 0.5;
+    private static final double DEC_TEMPERATURE = 0.5;
+    private static final double OUTSIDE_TEMPERATURE = 5;
+    private static final double DELTA_TEMPERATURE = 0.5;
     		
 
     private static final ForkJoinPool THREAD_POOL = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
@@ -31,7 +31,7 @@ public class ComputerTest {
         // GIVEN
     	computer = defineComputer();
         Room room = computer.room;
-        room.temperature = new AtomicReference<>(23.0);
+        room.temperature = new AtomicReference<>(10.0);
         computer.temperatureSetPoint = 20.0;
         computer.temperatureDelta = 1;
         computer.period = 100;
