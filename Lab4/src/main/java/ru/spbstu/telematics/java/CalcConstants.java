@@ -20,14 +20,20 @@ public class CalcConstants {
         return factorial;
     }
 
-    private static CompletableFuture<BigDecimal> calcPi(long start, long numElements, int scale) {
+    private static CompletableFuture<BigDecimal> calcPi(int start, long numElements, int scale) {
 
         var f = new CompletableFuture<BigDecimal>();
 
         ForkJoinPool.commonPool().execute((() -> {
             BigDecimal sum = BigDecimal.ZERO;
-            for (long i = start; i < start + numElements; i++) {
-                sum = sum.add((new BigDecimal(4.0)).divide(new BigDecimal(i).multiply(new BigDecimal(2)).add(BigDecimal.ONE), scale, RoundingMode.HALF_UP));
+            for (int i = start; i < start + numElements; i++) {
+
+                var first = new BigDecimal (4.0).divide(new BigDecimal(8 * i + 1), scale, RoundingMode.HALF_UP);
+                var second =new BigDecimal (-2.0).divide(new BigDecimal(8 * i + 4), scale, RoundingMode.HALF_UP);
+                var third = new BigDecimal (-1.0).divide(new BigDecimal(8 * i + 5), scale, RoundingMode.HALF_UP);
+                var forth = new BigDecimal (-1.0).divide(new BigDecimal(8 * i + 6), scale, RoundingMode.HALF_UP);
+                var mult = new BigDecimal(1.0).divide(new BigDecimal(16.0).pow(i), scale, RoundingMode.HALF_UP);
+                sum = sum.add(mult.multiply(first.add(second).add(third).add(forth)));
             }
 
 
@@ -37,25 +43,26 @@ public class CalcConstants {
         return f;
     }
 
-    private static CompletableFuture<BigDecimal> calcE(long start, long numElements, int scale) {
+
+    private static CompletableFuture<BigDecimal> calcE(int start, int numElements, int scale) {
 
         var f = new CompletableFuture<BigDecimal>();
 
         ForkJoinPool.commonPool().execute(() -> {
             BigDecimal sum = BigDecimal.ZERO;
 
-            for (long i = start; i < start + numElements; i++) {
+            for (int i = start; i < start + numElements; i++) {
                 var x = BigDecimal.ONE.divide(calculateFactorial(i), scale, RoundingMode.HALF_UP);
                 sum = sum.add(x);
             }
-
+            
             f.complete(sum);
         });
 
         return f;
     }
 
-    static CompletableFuture<BigDecimal> calculate(long numThreads, long elementsPerThread, boolean e, int scale) {
+    static CompletableFuture<BigDecimal> calculate(int numThreads, int elementsPerThread, boolean e, int scale) {
 
         List<CompletableFuture<BigDecimal>> futures = list();
 
@@ -75,21 +82,19 @@ public class CalcConstants {
 
     public static void main(String[] args) {
         int scale = 100;
-        long totalElements = 100;
-        long numThreads = 32;
-        long elementsPerThread = totalElements / numThreads;
+        int totalElements = 50000;
+        int numThreads = 8;
+        int elementsPerThread = totalElements / numThreads;
 
         System.out.println("Calculating pi with " + numThreads + " threads and " + elementsPerThread + " elements per thread");
 
         var startTime = System.currentTimeMillis();
         var pi = calculate(numThreads, elementsPerThread, false, scale).join().setScale(scale, RoundingMode.HALF_UP);
         var elapsed = System.currentTimeMillis() - startTime;
-
         System.out.println(pi);
         System.out.println(elapsed + " ms\n");
 
         totalElements = 1000;
-        numThreads = 16;
         elementsPerThread = totalElements / numThreads;
         System.out.println("Calculating e with " + numThreads + " threads and " + elementsPerThread + " elements per threads");
 
