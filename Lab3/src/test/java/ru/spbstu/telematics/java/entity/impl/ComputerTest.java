@@ -12,22 +12,52 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ComputerTest {
 
     /** period in milliseconds */
-    private static final long FAN_PERIOD = 100L;
-    private static final long HEATER_PERIOD = 100L;
-    private static final long ROOM_PERIOD = 2000L;
-    private static final double INC_TEMPERATURE = 0.5;
-    private static final double DEC_TEMPERATURE = 0.5;
-    private static final double OUTSIDE_TEMPERATURE = 5;
-    private static final double DELTA_TEMPERATURE = 0.5;
+	private long FAN_PERIOD = 50L;
+    private long HEATER_PERIOD = 50L;
+    private long ROOM_PERIOD = 1000L;
+    private double INC_TEMPERATURE = 0.5;
+    private double DEC_TEMPERATURE = 0.5;
+    private double OUTSIDE_TEMPERATURE = 5;
+    private double DELTA_TEMPERATURE = 0.5;
     		
 
     private static final ForkJoinPool THREAD_POOL = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
 
     private Computer computer;    
+    
+    @Test
+    public void checkRaceCondition() throws InterruptedException {
+    	FAN_PERIOD = 3000L;
+    	HEATER_PERIOD = 3000L;
+    	Room room = defineRoom();
+    	Fan[] fan = new Fan[100];
+    	Heater[] heater = new Heater[100];
+    	room.temperature = new AtomicReference<>(10.0);
+    	for (int i = 0; i < 100; i++)
+    	{
+    		fan[i] = defineFan();
+        	heater[i] = defineHeater();
+    	}
+    	for (int i = 0; i < 100; i++)
+    	{
+    		fan[i].start(room);
+        	heater[i].start(room);
+    	}
+    	Thread.sleep(2000);
+    	for (int i = 0; i < 100; i++)
+    	{
+    		fan[i].stop();
+        	heater[i].stop();
+    	}
+    	System.out.println(room.temperature);
+    	Assert.assertEquals(10.0, room.temperature.get(),DELTA_TEMPERATURE);
+    	
+    }
 
     @Test
     public void checkProcessingSuccess() throws InterruptedException {
-
+    	FAN_PERIOD = 50L;
+    	HEATER_PERIOD = 50L;
         // GIVEN
     	computer = defineComputer();
         Room room = computer.room;
@@ -39,13 +69,14 @@ public class ComputerTest {
         // WHEN
         computer.start();
         room.start();
-        Thread.sleep(TimeUnit.SECONDS.toMillis(15));
+        Thread.sleep(TimeUnit.SECONDS.toMillis(10));
         computer.stop();
         room.stop();
 
         // THEN
         Assert.assertEquals(20.0, room.temperature.get(),DELTA_TEMPERATURE);
     }
+    
 
     private Computer defineComputer() {
         return new Computer(THREAD_POOL, defineTemperatureSensor(), defineFan(), defineHeater(), defineRoom(), "Test computer", 0, 0, 0);
@@ -66,4 +97,6 @@ public class ComputerTest {
     private TemperatureSensor defineTemperatureSensor() {
         return new TemperatureSensor("Test temperature sensor");
     }
+    
+    
 }
