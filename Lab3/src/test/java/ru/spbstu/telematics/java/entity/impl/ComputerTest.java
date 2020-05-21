@@ -14,7 +14,7 @@ public class ComputerTest {
     /** period in milliseconds */
     private static final long FAN_PERIOD = 100L;
     private static final long HEATER_PERIOD = 100L;
-    private static final long ROOM_PERIOD = 1000L;
+    private static final long ROOM_PERIOD = 2000L;
     private static final double INC_TEMPERATURE = 0.5;
     private static final double DEC_TEMPERATURE = 0.5;
     private static final double OUTSIDE_TEMPERATURE = 5;
@@ -39,7 +39,7 @@ public class ComputerTest {
         // WHEN
         computer.start();
         room.start();
-        Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+        Thread.sleep(TimeUnit.SECONDS.toMillis(15));
         computer.stop();
         room.stop();
 
