@@ -21,6 +21,7 @@ public class Fan {
     private long period;
 
     private CompletableFuture<Void> future;
+    
 
     public Fan(Executor threadPool, String name, double decTemperature, long period) {
         this.threadPool = threadPool;
@@ -30,21 +31,31 @@ public class Fan {
     }
 
     public boolean start(Room room) {
-        future = runAsync(
+    	
+    	if (this.future != null){
+		return false;
+	} 
+    	freeze(room);    	
+        return true;
+    }
+    
+    private boolean freeze(Room room) {
+        this.future = runAsync(
                 () -> {
                     room.temperature = new AtomicReference<>(room.temperature.get() - decTemperature);
-                    start(room);
+                    freeze(room);
                 },
                 delayedExecutor(period, TimeUnit.MILLISECONDS, threadPool)
         );
         return true;
     }
 
-    public boolean stop() {
-        if (future == null) {
+    public boolean stop(Room room) {
+        if (this.future == null) {
             return false;
         } else {
-            future.cancel(true);
+            this.future.cancel(true);
+            future = null;
             return true;
         }
     }

@@ -18,9 +18,9 @@ public class Heater {
     private double incTemperature;
 
     /** temperature delta period in milliseconds */
-    private long period;
+    private long period;    
 
-    private CompletableFuture<Void> future;
+    private CompletableFuture<Void> future = null;
 
     public Heater(Executor threadPool, String name, double incTemperature, long period) {
         this.threadPool = threadPool;
@@ -30,21 +30,31 @@ public class Heater {
     }
 
     public boolean start(Room room) {
-        future = runAsync(
+    	
+    	if (this.future != null){
+		return false;
+	}
+    	heat(room);
+        return true;
+    }
+    
+    private boolean heat(Room room) {
+        this.future = runAsync(
                 () -> {
                     room.temperature = new AtomicReference<>(room.temperature.get() + incTemperature);
-                    start(room);
+                    heat(room);
                 },
                 delayedExecutor(period, TimeUnit.MILLISECONDS, threadPool)
         );
         return true;
     }
 
-    public boolean stop() {
-        if (future == null) {
+    public boolean stop(Room room) {        
+        if (this.future == null) {
             return false;
         } else {
-            future.cancel(true);
+            this.future.cancel(true);
+            this.future = null;
             return true;
         }
     }

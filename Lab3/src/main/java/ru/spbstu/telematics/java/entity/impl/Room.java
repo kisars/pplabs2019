@@ -30,22 +30,32 @@ public class Room {
         this.period = period;
     }
     
-    public boolean start() {
-        future = runAsync(
+public boolean start() {
+    	
+    	if (this.future != null){
+		return false;
+	}
+    	weather();
+        return true;
+    }
+    
+    private boolean weather() {
+        this.future = runAsync(
                 () -> {
-                    this.temperature = new AtomicReference<>(this.temperature.get() +  (this.outside - this.temperature.get()) / 10 );
-                    start();
+                    this.temperature = new AtomicReference<>(this.temperature.get() +  (this.outside - this.temperature.get()) / 100 );
+                    weather();
                 },
                 delayedExecutor(period, TimeUnit.MILLISECONDS, threadPool)
         );
         return true;
-        }
+    }
     
     public boolean stop() {
-        if (future == null) {
+        if (this.future == null) {
             return false;
         } else {
-            future.cancel(true);
+            this.future.cancel(true);
+            future = null;
             return true;
         }
     }

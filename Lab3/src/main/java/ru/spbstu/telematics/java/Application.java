@@ -10,16 +10,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Application {
 
-    private static final int ROOMS_COUNT = 10;
+    private static final int ROOMS_COUNT = 1;
     /** period in milliseconds */
-    private static final long PERIOD_FAN = 200L;
-    private static final long PERIOD_HEATER = 200L;
+    private static final long PERIOD_FAN = 50L;
+    private static final long PERIOD_HEATER = 50L;
     private static final long PERIOD_COMPUTER = 200L;
-    private static final long PERIOD_ROOM = 200L;
-    private static final double INC_TEMPERATURE = 0.5;
-    private static final double DEC_TEMPERATURE = 0.5;
+    private static final long PERIOD_ROOM = 400L;
+    private static final double INC_TEMPERATURE = 0.25;
+    private static final double DEC_TEMPERATURE = 0.25;
     private static final double TEMPERATURE_SETPOINT = 25;
-    private static final double OUTSIDE_TEMPERATURE = 30;
+    private static final double OUTSIDE_TEMPERATURE = 10;
     /** deltas in percent */
     private static final double TEMPERATURE_DELTA = 1;
     /** default room params */
@@ -35,7 +35,7 @@ public class Application {
             computer.start();
             computer.room.start();
         });
-        Thread.sleep(30000);
+        Thread.sleep(10000);
         computers.forEach((name, computer) -> {
             computer.stop();
             computer.room.stop();

@@ -27,9 +27,6 @@ public class Computer {
 
     private CompletableFuture<Void> future;
 
-    public final AtomicBoolean highTemperatureIsNotified = new AtomicBoolean(false);
-    public final AtomicBoolean lowTemperatureIsNotified = new AtomicBoolean(false);
-
     public Computer(Executor threadPool, TemperatureSensor temperatureSensor, Fan fan, Heater heater, Room room, String name, double temperatureSetPoint, double temperatureDelta, long period) {
         this.threadPool = threadPool;
         this.temperatureSensor = temperatureSensor;
@@ -43,24 +40,19 @@ public class Computer {
     }
 
     public boolean start() {
-        future = runAsync(
+        this.future = runAsync(
                 () -> {
-                    if (isHighTemperature() && !highTemperatureIsNotified.get()) {
+                	System.out.println("Current room temperature is:" + this.room.temperature);
+                    if (isHighTemperature()) {
                         System.out.println(name + " Fan is on, heater is off.");
-                        highTemperatureIsNotified.set(true);
-                        lowTemperatureIsNotified.set(false);
                         fanOn();
                         heaterOff();
-                    } else if (isLowTemperature() && !lowTemperatureIsNotified.get()) {
+                    } else if (isLowTemperature()) {
                         System.out.println(name + " Fan is off, heater is on.");
-                        lowTemperatureIsNotified.set(true);
-                        highTemperatureIsNotified.set(false);
                         fanOff();
                         heaterOn();
-                    } else if (!isLowTemperature() && !isHighTemperature()) {
+                    } else if (!isLowTemperature()) {
                     	System.out.println(name + " Fan is off, heater is off.");
-                        highTemperatureIsNotified.set(false);
-                        lowTemperatureIsNotified.set(false);
                         fanOff();
                         heaterOff();
                     }
@@ -72,10 +64,10 @@ public class Computer {
     }
 
     public boolean stop() {
-        if (future == null) {
+        if (this.future == null) {
             return false;
         } else {
-            future.cancel(true);
+            this.future.cancel(true);
             return true;
         }
     }
@@ -93,7 +85,7 @@ public class Computer {
     }
 
     public boolean fanOff() {
-        return fan.stop();
+        return fan.stop(room);
     }
 
     public boolean heaterOn() {
@@ -101,6 +93,6 @@ public class Computer {
     }
 
     public boolean heaterOff() {
-        return heater.stop();
+        return heater.stop(room);
     }
 }
